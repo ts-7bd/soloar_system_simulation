@@ -84,12 +84,12 @@ def main():
             #print("seconds elapsed", gametime, trigger_event_rate, seconds2 - seconds1)
 
             # update planet positions if event is triggered
-            for i in range(len(planets)-1):
+            for i in range(len(planets)):
               planet = planets[i]
-              distance_text = FONT.render(f"{planet.name}: {round(planet.distance_to_sun/1e9, 3)}", 1, WHITE)
-              SCREEN.blit(distance_text, (10, 35+20*i))
+              if planet.name != "Sun":
+                distance_text = FONT.render(f"{planet.name}: {round(planet.distance_to_sun/1e9, 3)}", 1, WHITE)
+                SCREEN.blit(distance_text, (10, 35+20*i))
             # update planet positions and draw them on the screen
-            for planet in planets:
               if active: planet.update_position(planets)
               planet.draw(SCREEN)
               
