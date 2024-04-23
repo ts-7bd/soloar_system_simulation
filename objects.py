@@ -7,7 +7,7 @@ FONT = define_text_font()
 class Planet:
   AU = (149.6e6 * 1000) # astronomical unit
   G = 6.67428e-11 # gravitational force
-  SCALE = 60 / AU # scaling meters to pixels - 1AU = 100px?
+  SCALE = 300 / AU # scaling meters to pixels - 1AU = 100px?
   TIMESTEP = 3600*24
 
   def __init__(self, x, y, radius, color, mass, figure="", name=""):
