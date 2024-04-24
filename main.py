@@ -23,25 +23,24 @@ background = pygame.image.load(IMAGE_NIGHTSKY)
 background_scaled = pygame.transform.scale(background, SCREEN_SIZE)
 
 # change scale and increase displayed radius of the planet
-def zoom_in_and_out(objects, scale, func):
+def zoom_in_and_out(objects, new_scale, func):
   for object in objects:
-    print(object)
-    print(object.SCALE)
-    print(object.radius)
-    print(object.__class__.__name__)
-    adjusted_scale = scale / object.AU
+    old_scale = object.scale
     # change radius only if new scale is different from the current scale
-    if object.SCALE != adjusted_scale: object.radius = func(object.radius, 2)
-    object.SCALE = adjusted_scale
-    if object.__class__.__name__ == "Comet":
-      print(object.SCALE, adjusted_scale, object.radius)
+    if old_scale != new_scale: object.radius = func(object.radius, 2)
+    object.scale = new_scale
+    # if object.__class__.__name__ == "Comet":
+    #   print("Comet", object.scale*AU, new_scale*AU, old_scale*AU, object.radius)
 
-def create_comet(comets, first_position, second_position):
-  f_x, f_y = first_position
-  s_x, s_y = second_position
-  vel_x = (s_x - f_x) / 1e6
-  vel_y = (s_y - f_y) / 1e6
-  comet = Comet(f_x, f_y, vel_x, vel_y, 8)
+# create comet, get velocities, and define radius of displayed circle
+def create_comet(comets, current_scale, first_position, second_position):
+  first_x, first_y = first_position
+  second_x, second_y = second_position
+  vel_x = (second_x - first_x) / 1e6
+  vel_y = (second_y - first_y) / 1e6
+  radius = 8 if current_scale == SCALE else 4
+  comet = Comet(first_x, first_y, vel_x, vel_y, current_scale, radius, 1e4)
+
   comets.append(comet)
 
 def main():
@@ -56,17 +55,17 @@ def main():
   sun = Planet(0, 0, 25, YELLOW, 1.98892 * 10**30, IMAGE_SUN, "Sun")
   sun.sun = True 
   # setting the planets
-  mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 0.330e24, IMAGE_MERCURY, "Mercury")
+  mercury = Planet(0.387 * AU, 0, 8, DARK_GREY, 0.330e24, IMAGE_MERCURY, "Mercury")
   mercury.y_vel = -47.4e3
-  venus = Planet(0.723 * Planet.AU, 0, 12, WHITE, 4.8685e24, IMAGE_VENUS, "Venus")
+  venus = Planet(0.723 * AU, 0, 12, WHITE, 4.8685e24, IMAGE_VENUS, "Venus")
   venus.y_vel = 35.02e3
-  earth = Planet(-1 * Planet.AU, 0, 12, BLUE, 5.9742e24, IMAGE_EARTH, "Earth")
+  earth = Planet(-1 * AU, 0, 12, BLUE, 5.9742e24, IMAGE_EARTH, "Earth")
   earth.y_vel = 29.783e3
-  mars = Planet(-1.524 * Planet.AU, 0, 10, RED, 0.639e24, IMAGE_MARS, "Mars")
+  mars = Planet(-1.524 * AU, 0, 10, RED, 0.639e24, IMAGE_MARS, "Mars")
   mars.y_vel = 24.077e3
-  jupiter = Planet(5.203 * Planet.AU, 0, 20, ORANGE, 1898.13e24, IMAGE_JUPITER, "Jupiter")
+  jupiter = Planet(5.203 * AU, 0, 20, ORANGE, 1898.13e24, IMAGE_JUPITER, "Jupiter")
   jupiter.y_vel = -13.06e3
-  saturn = Planet(9.537 * Planet.AU, 0, 20, DARK_GREY, 568.32e24, IMAGE_SATURN, "Saturn")
+  saturn = Planet(9.537 * AU, 0, 20, DARK_GREY, 568.32e24, IMAGE_SATURN, "Saturn")
   saturn.y_vel = -9.67e3
   # list of used planets
   planets = [mercury, venus, earth, mars, jupiter, saturn, sun]
@@ -129,8 +128,8 @@ def main():
             comet.draw(SCREEN)
             comet.move(planets)
 
-            x_screen = comet.x * 60/comet.AU + WIDTH / 2
-            y_screen = comet.y * 60/comet.AU + HEIGHT / 2
+            x_screen = comet.x * 60/AU + WIDTH / 2
+            y_screen = comet.y * 60/AU + HEIGHT / 2
             off_screen = x_screen < 0 or x_screen > WIDTH or y_screen < 0 or y_screen > HEIGHT
             if off_screen: comets.remove(comet)
 
@@ -145,12 +144,12 @@ def main():
           active = not active
         # zoom in when "i" is pressed
         elif event.key == pygame.K_i:
-          zoom_in_and_out(planets, 300, np.multiply)
-          zoom_in_and_out(comets, 300, np.multiply)
+          zoom_in_and_out(planets, SCALE, np.multiply)
+          zoom_in_and_out(comets, SCALE, np.multiply)
         # zoom out when "o" is pressed
         elif event.key == pygame.K_o:
-          zoom_in_and_out(planets, 60, np.divide)
-          zoom_in_and_out(comets, 60, np.divide)
+          zoom_in_and_out(planets, SCALE_OUT, np.divide)
+          zoom_in_and_out(comets, SCALE_OUT, np.divide)
       # modify trigger rate of TIMEEVENT on the event queue betwwen 1000ms and 50ms
         elif event.key == pygame.K_UP:
           trigger_event_rate = np.max([25, int(trigger_event_rate/2)])
@@ -160,7 +159,9 @@ def main():
           pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
       if event.type == pygame.MOUSEBUTTONDOWN: 
         if temp_obj_pos:
-          create_comet(comets, temp_obj_pos, mouse_pos)
+          # get current scale of the screen and draw comet
+          current_scale = planets[0].scale
+          create_comet(comets, current_scale, temp_obj_pos, mouse_pos)
           temp_obj_pos = None
         else:
           temp_obj_pos = mouse_pos

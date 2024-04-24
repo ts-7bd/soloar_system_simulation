@@ -30,3 +30,11 @@ WHITE = (255, 255, 255)
 def define_text_font():
   # pygame.font.SysFont("comicsans", 16)
   return pygame.font.SysFont("dejavusansmono", 16) 
+
+# set astronomical constants
+AU = 149.6e9 # astronomical unit [m]
+G = 6.67428e-11 # gravitational force
+# define scale of the screen and calculated timestep
+SCALE = 300 / AU # scaling meters to pixels [px/m]
+SCALE_OUT = 60 / AU # scaling to the outer planets [px/m]
+TIMESTEP = 3600*24 # timestep [s]

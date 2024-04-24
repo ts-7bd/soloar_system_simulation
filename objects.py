@@ -5,12 +5,10 @@ from globals import *
 
 FONT = define_text_font()
 
+# Object for planets and the Sun
 class Planet:
-  AU = 149.6e9 # astronomical unit [m]
-  G = 6.67428e-11 # gravitational force
-  SCALE = 300 / AU # scaling meters to pixels [px/m]
-  TIMESTEP = 3600*24 # timestep [s]
-
+  scale = SCALE # current scale - changes with zooming in and out
+  
   def __init__(self, x, y, radius, color, mass, figure="", name=""):
     self.x = x # [m]
     self.y = y # [m]
@@ -31,16 +29,16 @@ class Planet:
   def draw(self, screen):
 
     # location of the planet
-    x = self.x * self.SCALE + WIDTH / 2
-    y = self.y * self.SCALE + HEIGHT / 2
+    x = self.x * self.scale + WIDTH / 2
+    y = self.y * self.scale + HEIGHT / 2
     
 		# draw orbit
     if len(self.orbit) > 2:
       updated_points = []
       for point in self.orbit[-5000:]:
         x, y = point
-        x = x * self.SCALE + WIDTH / 2
-        y = y * self.SCALE + HEIGHT / 2
+        x = x * self.scale + WIDTH / 2
+        y = y * self.scale + HEIGHT / 2
         updated_points.append((x, y))
 
       pygame.draw.lines(screen, self.color, False, updated_points, 2)
@@ -71,7 +69,7 @@ class Planet:
       self.distance_to_sun = distance
 
     # attraction in x and y direction
-    force = self.G * self.mass * other.mass / distance**2
+    force = G * self.mass * other.mass / distance**2
     theta = math.atan2(distance_y, distance_x)
     force_x = math.cos(theta) * force
     force_y = math.sin(theta) * force
@@ -90,50 +88,42 @@ class Planet:
       total_fx += fx
       total_fy += fy
 
-    self.x_vel += total_fx / self.mass * self.TIMESTEP
-    self.y_vel += total_fy / self.mass * self.TIMESTEP
+    self.x_vel += total_fx / self.mass * TIMESTEP
+    self.y_vel += total_fy / self.mass * TIMESTEP
 
-    self.x += self.x_vel * self.TIMESTEP
-    self.y += self.y_vel * self.TIMESTEP
+    self.x += self.x_vel * TIMESTEP
+    self.y += self.y_vel * TIMESTEP
 
     self.orbit.append((self.x, self.y))
 
-
+# Object for "launched" comets
 class Comet:
-  AU = 149.6e9 # astronomical unit [m]
-  G = 6.67428e-11 # gravitational force
-  SCALE = 300 / AU # scaling meters to pixels [px/m]
-  TIMESTEP = 3600*24 # timestep [s]
   DENSITY = 550 # mean density of Halley's comet [kg/m³]
 
   # initialization with x [px], y [px], x_vel [px/s], y_vel [px/s], size [px], d [m]
-  def __init__(self, x, y, x_vel, y_vel, radius, diameter=5000):
-    self.x = (x - WIDTH/2) / self.SCALE # x-distance to sun [m]
-    self.y = (y - HEIGHT/2) / self.SCALE # y-distance to sun [m]
-    self.x_vel = x_vel / self.SCALE # x-velocity [m/s]
-    self.y_vel = y_vel / self.SCALE # y-velocity [m/s]
+  def __init__(self, x, y, x_vel, y_vel, scale, radius, diameter=5000):
+    self.scale = scale # current scale - changes with zooming in and out
+    self.radius = radius # displayed radius on the screen [px]
 
-    self.radius = radius if self.SCALE * self.AU >= 200 else int(radius/2) # displayed radius on the screen [px]
-    self.diameter = diameter # diameter of the object [m]
-    print("initialisierter Radius", self.radius)
-    print(radius, self.SCALE * self.AU)
-    
+    self.x = (x - WIDTH/2) / self.scale # x-distance to sun [m]
+    self.y = (y - HEIGHT/2) / self.scale # y-distance to sun [m]
+    self.x_vel = x_vel / self.scale # x-velocity [m/s]
+    self.y_vel = y_vel / self.scale # y-velocity [m/s]
+
+    self.diameter = diameter # diameter of the object [m]   
     self.volume = 4/3.*np.pi*(self.diameter/2.)**3 # volume [m³]
     self.mass = self.volume * self.DENSITY
-    print("position",x, y, self.x/1e9, self.y/1e9)
-    print("velocity", x_vel, y_vel, np.sqrt(self.x_vel**2+self.y_vel**2)/1e3)
-    print("mass", self.mass/1e12)
   
   # draw comit on the given screen
   def draw(self, screen):
     # location of the comiet and draw a circle
-    x = self.x * self.SCALE + WIDTH / 2
-    y = self.y * self.SCALE + HEIGHT / 2  
+    x = self.x * self.scale + WIDTH / 2
+    y = self.y * self.scale + HEIGHT / 2  
     pygame.draw.circle(screen, BEIGE, (x, y), self.radius)
 
   def move(self, planets):
-    self.x += self.x_vel * self.TIMESTEP
-    self.y += self.y_vel * self.TIMESTEP
+    self.x += self.x_vel * TIMESTEP
+    self.y += self.y_vel * TIMESTEP
 
 
   
