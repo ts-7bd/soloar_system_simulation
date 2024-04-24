@@ -22,16 +22,35 @@ pygame.display.set_caption("Planet Simulation - Running")
 background = pygame.image.load(IMAGE_NIGHTSKY)
 background_scaled = pygame.transform.scale(background, SCREEN_SIZE)
 
-def zoom_in_and_out(planets, scale, func):
-  for planet in planets:
-    adjusted_scale = scale / planet.AU
-    if planet.SCALE != adjusted_scale: planet.radius = func(planet.radius, 2)
-    planet.SCALE = adjusted_scale
+# change scale and increase displayed radius of the planet
+def zoom_in_and_out(objects, scale, func):
+  for object in objects:
+    print(object)
+    print(object.SCALE)
+    print(object.radius)
+    print(object.__class__.__name__)
+    adjusted_scale = scale / object.AU
+    # change radius only if new scale is different from the current scale
+    if object.SCALE != adjusted_scale: object.radius = func(object.radius, 2)
+    object.SCALE = adjusted_scale
+    if object.__class__.__name__ == "Comet":
+      print(object.SCALE, adjusted_scale, object.radius)
+
+def create_comet(comets, first_position, second_position):
+  f_x, f_y = first_position
+  s_x, s_y = second_position
+  vel_x = (s_x - f_x) / 1e6
+  vel_y = (s_y - f_y) / 1e6
+  comet = Comet(f_x, f_y, vel_x, vel_y, 8)
+  comets.append(comet)
 
 def main():
   # booleans for running, stopping and pausing the simulation
   running = True
   active = True
+
+  comets = []
+  temp_obj_pos = None
 
   # setting the sun
   sun = Planet(0, 0, 25, YELLOW, 1.98892 * 10**30, IMAGE_SUN, "Sun")
@@ -45,7 +64,7 @@ def main():
   earth.y_vel = 29.783e3
   mars = Planet(-1.524 * Planet.AU, 0, 10, RED, 0.639e24, IMAGE_MARS, "Mars")
   mars.y_vel = 24.077e3
-  jupiter = Planet(5.203 * Planet.AU, 0, 20, DARK_GREY, 1898.13e24, IMAGE_JUPITER, "Jupiter")
+  jupiter = Planet(5.203 * Planet.AU, 0, 20, ORANGE, 1898.13e24, IMAGE_JUPITER, "Jupiter")
   jupiter.y_vel = -13.06e3
   saturn = Planet(9.537 * Planet.AU, 0, 20, DARK_GREY, 568.32e24, IMAGE_SATURN, "Saturn")
   saturn.y_vel = -9.67e3
@@ -55,17 +74,17 @@ def main():
   # setting game spped and create object and event to track time
   CLOCK = pygame.time.Clock()
   TIMEREVENT = pygame.USEREVENT + 1
-  trigger_event_rate = 1000 # trigger TIMEEVENT ever millisecond
+  trigger_event_rate = 25 # trigger TIMEEVENT ever millisecond
   pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
   start_ticks = pygame.time.get_ticks()
-  seconds1 = seconds2 = 0
+  seconds1 = seconds2 = np.float64(0.)
 
   while running:
 
     # update clock every second
     CLOCK.tick(60)
     # time since start
-    gametime = (pygame.time.get_ticks()-start_ticks)/1000
+    gametime = np.float64(pygame.time.get_ticks()-start_ticks)/1000.
 
     # set background of the screen
     SCREEN.blit(background_scaled, (0, 0))
@@ -74,56 +93,78 @@ def main():
     distance_info_text = FONT.render(f"Distance in million Km", 1, WHITE)
     SCREEN.blit(distance_info_text, (10, 15))
 
+    mouse_pos = pygame.mouse.get_pos()
+
     for event in pygame.event.get():
-        if event.type == TIMEREVENT:
-            seconds1 = seconds2
-            seconds2 = gametime
-            # display time interval days per second on screen
-            timestep_text = FONT.render(f"timestep: {round(1/(seconds2-seconds1),1)} days per second", 1, BLUE)
-            SCREEN.blit(timestep_text, (10, 160))
-            #print("seconds elapsed", gametime, trigger_event_rate, seconds2 - seconds1)
+      # update positions only when timerevent occurs
+      if event.type == TIMEREVENT:
+          seconds1 = seconds2
+          seconds2 = gametime
+          # display time interval days per second on screen
+          timestep_text = FONT.render(f"timestep: {round(1/(seconds2-seconds1+0.0001),1)} days per second", 1, BLUE)
+          SCREEN.blit(timestep_text, (10, 160))
+          #print("seconds elapsed", gametime, trigger_event_rate, seconds2 - seconds1)
 
-            # update planet positions if event is triggered
-            for i in range(len(planets)):
-              planet = planets[i]
-              if planet.name != "Sun":
-                distance_text = FONT.render(f"{planet.name}: {round(planet.distance_to_sun/1e9, 3)}", 1, WHITE)
-                SCREEN.blit(distance_text, (10, 35+20*i))
-            # update planet positions and draw them on the screen
-              if active: planet.update_position(planets)
-              planet.draw(SCREEN)
-              
-            # title of the screen
-            if active:
-              pygame.display.set_caption("Planet Simulation - Running")
-            else:
-              pygame.display.set_caption("Planet Simulation - Paused")
+          # update planet positions if event is triggered
+          for i in range(len(planets)):
+            planet = planets[i]
+            if planet.name != "Sun":
+              distance_text = FONT.render(f"{planet.name}: {round(planet.distance_to_sun/1e9, 3)}", 1, WHITE)
+              SCREEN.blit(distance_text, (10, 35+20*i))
+          # update planet positions and draw them on the screen
+            if active: planet.update_position(planets)
+            planet.draw(SCREEN)
+            
+          # title of the screen
+          if active:
+            pygame.display.set_caption("Planet Simulation - Running")
+          else:
+            pygame.display.set_caption("Planet Simulation - Paused")
 
-            pygame.display.update()
+          if temp_obj_pos:
+            pygame.draw.line(SCREEN, WHITE, temp_obj_pos, mouse_pos, 1)
+            pygame.draw.circle(SCREEN, BEIGE, temp_obj_pos, 5)  
 
-        # stops the simulation when ESC is pressed
-        if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-          running = False
-        elif event.type == pygame.KEYDOWN:
-        # pauses or continue when SPACE is pressed
-          if event.key == pygame.K_SPACE:
-            active = not active
-          # zoom in when "i" is pressed
-          elif event.key == pygame.K_i:
-            zoom_in_and_out(planets, 300, np.multiply)
-          # zoom out when "o" is pressed
-          elif event.key == pygame.K_o:
-            zoom_in_and_out(planets, 60, np.divide)
-        # modify trigger rate of TIMEEVENT on the event queue betwwen 1000ms and 50ms
-          elif event.key == pygame.K_UP:
-            trigger_event_rate = np.max([25, int(trigger_event_rate/2)])
-            pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
-          elif event.key == pygame.K_DOWN:
-            trigger_event_rate = np.min([1000, int(trigger_event_rate*2)])
-            pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
-        # elif event.type == pygame.MOUSEBUTTONDOWN: 
-        #   if event.button == 4:
-        #   elif event.button == 5:
+          for comet in comets:
+            comet.draw(SCREEN)
+            comet.move(planets)
+
+            x_screen = comet.x * 60/comet.AU + WIDTH / 2
+            y_screen = comet.y * 60/comet.AU + HEIGHT / 2
+            off_screen = x_screen < 0 or x_screen > WIDTH or y_screen < 0 or y_screen > HEIGHT
+            if off_screen: comets.remove(comet)
+
+          pygame.display.update()
+
+      # stops the simulation when ESC is pressed
+      if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        running = False
+      if event.type == pygame.KEYDOWN:
+      # pauses or continue when SPACE is pressed
+        if event.key == pygame.K_SPACE:
+          active = not active
+        # zoom in when "i" is pressed
+        elif event.key == pygame.K_i:
+          zoom_in_and_out(planets, 300, np.multiply)
+          zoom_in_and_out(comets, 300, np.multiply)
+        # zoom out when "o" is pressed
+        elif event.key == pygame.K_o:
+          zoom_in_and_out(planets, 60, np.divide)
+          zoom_in_and_out(comets, 60, np.divide)
+      # modify trigger rate of TIMEEVENT on the event queue betwwen 1000ms and 50ms
+        elif event.key == pygame.K_UP:
+          trigger_event_rate = np.max([25, int(trigger_event_rate/2)])
+          pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
+        elif event.key == pygame.K_DOWN:
+          trigger_event_rate = np.min([800, int(trigger_event_rate*2)])
+          pygame.time.set_timer(TIMEREVENT, trigger_event_rate)
+      if event.type == pygame.MOUSEBUTTONDOWN: 
+        if temp_obj_pos:
+          create_comet(comets, temp_obj_pos, mouse_pos)
+          temp_obj_pos = None
+        else:
+          temp_obj_pos = mouse_pos
+
 
   pygame.quit
 

@@ -1,23 +1,24 @@
 import pygame
 import math
+import numpy as np
 from globals import *
 
 FONT = define_text_font()
 
 class Planet:
-  AU = (149.6e6 * 1000) # astronomical unit
+  AU = 149.6e9 # astronomical unit [m]
   G = 6.67428e-11 # gravitational force
-  SCALE = 300 / AU # scaling meters to pixels - 1AU = 100px?
-  TIMESTEP = 3600*24
+  SCALE = 300 / AU # scaling meters to pixels [px/m]
+  TIMESTEP = 3600*24 # timestep [s]
 
   def __init__(self, x, y, radius, color, mass, figure="", name=""):
-    self.x = x
-    self.y = y
-    self.radius = radius
-    self.color = color
-    self.mass = mass
-    self.figure = figure
-    self.name = name
+    self.x = x # [m]
+    self.y = y # [m]
+    self.radius = radius # [px]
+    self.color = color # string
+    self.mass = mass # [kg]
+    self.figure = figure # jpg/png
+    self.name = name # string
 
     self.orbit = []
     self.sun = False
@@ -96,3 +97,48 @@ class Planet:
     self.y += self.y_vel * self.TIMESTEP
 
     self.orbit.append((self.x, self.y))
+
+
+class Comet:
+  AU = 149.6e9 # astronomical unit [m]
+  G = 6.67428e-11 # gravitational force
+  SCALE = 300 / AU # scaling meters to pixels [px/m]
+  TIMESTEP = 3600*24 # timestep [s]
+  DENSITY = 550 # mean density of Halley's comet [kg/m³]
+
+  # initialization with x [px], y [px], x_vel [px/s], y_vel [px/s], size [px], d [m]
+  def __init__(self, x, y, x_vel, y_vel, radius, diameter=5000):
+    self.x = (x - WIDTH/2) / self.SCALE # x-distance to sun [m]
+    self.y = (y - HEIGHT/2) / self.SCALE # y-distance to sun [m]
+    self.x_vel = x_vel / self.SCALE # x-velocity [m/s]
+    self.y_vel = y_vel / self.SCALE # y-velocity [m/s]
+
+    self.radius = radius if self.SCALE * self.AU >= 200 else int(radius/2) # displayed radius on the screen [px]
+    self.diameter = diameter # diameter of the object [m]
+    print("initialisierter Radius", self.radius)
+    print(radius, self.SCALE * self.AU)
+    
+    self.volume = 4/3.*np.pi*(self.diameter/2.)**3 # volume [m³]
+    self.mass = self.volume * self.DENSITY
+    print("position",x, y, self.x/1e9, self.y/1e9)
+    print("velocity", x_vel, y_vel, np.sqrt(self.x_vel**2+self.y_vel**2)/1e3)
+    print("mass", self.mass/1e12)
+  
+  # draw comit on the given screen
+  def draw(self, screen):
+    # location of the comiet and draw a circle
+    x = self.x * self.SCALE + WIDTH / 2
+    y = self.y * self.SCALE + HEIGHT / 2  
+    pygame.draw.circle(screen, BEIGE, (x, y), self.radius)
+
+  def move(self, planets):
+    self.x += self.x_vel * self.TIMESTEP
+    self.y += self.y_vel * self.TIMESTEP
+
+
+  
+
+
+    
+
+  
