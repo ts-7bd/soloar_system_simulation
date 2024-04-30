@@ -1,3 +1,7 @@
+"""
+definition of the two main objects - Planet and Comet
+"""
+
 import pygame
 import math
 import numpy as np
@@ -96,6 +100,7 @@ class Planet:
 
     self.orbit.append((self.x, self.y))
 
+
 # Object for "launched" comets
 class Comet:
   DENSITY = 550 # mean density of Halley's comet [kg/m³]
@@ -121,10 +126,34 @@ class Comet:
     y = self.y * self.scale + HEIGHT / 2  
     pygame.draw.circle(screen, BEIGE, (x, y), self.radius)
 
-  def move(self, planets):
+  # gravitational attraction of the other objects on the comet
+  def attraction(self, other):
+    distance_x = other.x - self.x
+    distance_y = other.y - self.y
+    distance = math.sqrt(distance_x**2 + distance_y**2)
+
+    # attraction in x and y direction
+    force = G * self.mass * other.mass / distance**2
+    theta = math.atan2(distance_y, distance_x)
+    force_x = math.cos(theta) * force
+    force_y = math.sin(theta) * force
+
+    return force_x, force_y
+  
+	# calculated new position as a result of the total force of all other planets on this planets
+  def update_position(self, planets):
+    total_fx = total_fy = 0
+    
+    for planet in planets:
+      fx, fy = self.attraction(planet)
+      total_fx += fx
+      total_fy += fy
+
+    self.x_vel += total_fx / self.mass * TIMESTEP
+    self.y_vel += total_fy / self.mass * TIMESTEP
+
     self.x += self.x_vel * TIMESTEP
     self.y += self.y_vel * TIMESTEP
-
 
   
 

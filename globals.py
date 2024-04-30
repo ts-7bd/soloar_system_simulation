@@ -1,3 +1,7 @@
+"""
+constants, screen definitions, paths of planet icons, and colors
+"""
+
 import os
 import pygame
 
@@ -8,7 +12,8 @@ WIDTH, HEIGHT = 1200, 1200
 SCREEN_SIZE = (WIDTH, HEIGHT)
 
 # images used in this simulation
-IMAGE_NIGHTSKY = os.path.join("images", "galaxy-sky-stars-nebula-atmosphere-astronomy-93810-wallhere.com.jpg")
+#IMAGE_NIGHTSKY = os.path.join("images", "galaxy-sky-stars-nebula-atmosphere-astronomy-93810-wallhere.com.jpg")
+IMAGE_NIGHTSKY = os.path.join("images", "background.jpg")
 IMAGE_SUN      = os.path.join("images", "icons8-sun-96.png")
 IMAGE_MERCURY  = os.path.join("images", "icons8-mercury-planet-96.png") 
 IMAGE_VENUS    = os.path.join("images", "icons8-venus-planet-96.png")
