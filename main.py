@@ -6,8 +6,8 @@ You can also launch comets with the mass of the Halley's comet and view its way 
 If it does not crash with one of the object you may be lucky and it is orbiting around the sun.
 Also the simulation speed can be adapted.
 
-This simulation is inspired by the Youtube channel from Tech with Tim: https://www.youtube.com/watch?v=WTLPmUHTPqo
-night sky image from https://wallhere.com/de/wallpaper/93810
+This simulation is inspired by Tim Ruscica and his Youtube channel from TechWithTim: https://www.youtube.com/watch?v=WTLPmUHTPqo
+night sky image from https://github.com/techwithtim/Slingshot-Effect-Simulation
 planet symbols were gained from https://icons8.com/icons
 """
 
@@ -73,8 +73,6 @@ def main():
   comets = []
   temp_obj_pos = None
 
-
-
   # setting the sun
   sun = Planet(0, 0, 25, YELLOW, 1.98892 * 10**30, IMAGE_SUN, "Sun")
   sun.y_vel = 0
@@ -97,9 +95,9 @@ def main():
   planets = [mercury, venus, earth, mars, jupiter, saturn, sun]
 
   # for playing with Jupiters mass
-  # mass_multiplier = 1 # Jupiter is a planet
-  mass_multiplier = 20 # Jupiter is a brown dwarf
-  #mass_multiplier = 100 # Jupiter is a red dwarf
+  mass_multiplier = 1 # Jupiter is a planet
+  # mass_multiplier = 20 # Jupiter is a brown dwarf
+  # mass_multiplier = 100 # Jupiter is a red dwarf
   jupiter.mass = jupiter.mass * mass_multiplier # increasing the mass
   # Sun rotates around the common mass center
   nom, denom = 0, 0
@@ -107,11 +105,13 @@ def main():
     nom += planet.x*planet.mass
     denom += planet.mass
   mass_center = nom/denom
-  # sun need and it planets need to be shifted to the distance from the mass center
-  for planet in planets:
-    if planet.name == "Jupiter": continue # 
-    planet.x = planet.x - mass_center
+  # planets and sun need to be shifted to the distance from the mass center
+  # mass center is located in the middle of the screen (WIDTH/2, HEIGHT/2)
+  # for planet in planets:
+  #   if planet.name == "Jupiter": continue # 
+  #   planet.x = planet.x - mass_center
   print("mass center: ", mass_center)
+  # add velocity to sun to balance out the angular momentum of the solar system
   if mass_multiplier == 20: sun.y_vel = 2.5e2
   if mass_multiplier == 100: sun.y_vel = 12e2
 
