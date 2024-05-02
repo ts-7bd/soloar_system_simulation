@@ -1,12 +1,12 @@
 """
 This program simulates the orbiting planets in our solar system. By startup it shows the inner planets.
-Planet positions are calculated for Sun, Mercury, Venus, Earth, Mars, Jupiter, and Saturn#
+Planet positions are calculated for Sun, Mercury, Venus, Earth, Mars, Jupiter, and Saturn.
 Zooming in and out enables the view of the outer planets and inner planets or only the inner planets.
 You can also launch comets with the mass of the Halley's comet and view its way through the solar system.
 If it does not crash with one of the object you may be lucky and it is orbiting around the sun.
 Also the simulation speed can be adapted.
 
-This simulation is inspired by Tim Ruscica and his Youtube channel from TechWithTim: https://www.youtube.com/watch?v=WTLPmUHTPqo
+This simulation is inspired by the Youtube channel TechWithTim: https://www.youtube.com/watch?v=WTLPmUHTPqo
 night sky image from https://github.com/techwithtim/Slingshot-Effect-Simulation
 planet symbols were gained from https://icons8.com/icons
 """
