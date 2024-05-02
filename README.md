@@ -29,10 +29,10 @@ python main.py
 
 ## Technical Details
 
-This simulation was written with
+This simulation was written with <br />
 conda 24.3.0 <br />
 python 3.11.8 <br />
-pygame 2.2.0 <br />
+pygame 2.2.0
 
 ## Acknowledgements
 
