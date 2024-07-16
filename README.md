@@ -36,6 +36,6 @@ pygame 2.2.0
 
 ## Acknowledgements
 
-Thanks to Tim Ruscica for his inpireing videos on his [Youtube Cannel](https://www.youtube.com/@TechWithTim). <br />
+Partly inspired by Tim Ruscica's [Youtube Cannel](https://www.youtube.com/@TechWithTim). <br />
 The night sky image was forked from [GitHub](https://github.com/techwithtim/Slingshot-Effect-Simulation) <br />
 Planet and Sun symbols were provided by [icons8](https://icons8.com/icons)
