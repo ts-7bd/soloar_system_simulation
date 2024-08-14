@@ -1,8 +1,8 @@
-# Solar System Simulator
+# Fire comets into the simulated solar System
 
 ## Description
 
-This program simulates our solar system. Planets orbit the Sun and their positions and movements are governed by the gravitational force. By start a pygame screen is opened and the inner planets are visible. Their distances to thw sun are listed in the left-upper corner. All planets including Mercury, Venus, Earth, Mars, Jupiter, and Saturn are simulated. Planet and Sun icons were used to show the planets. Their orbit around the Sun is also drawn. <br />
+This program simulates our solar system with real physical properties. Planets orbit the Sun and their positions and movements are governed by the gravitational force. By start a pygame screen is opened and the inner planets are visible. Their distances to thw sun are listed in the left-upper corner. All planets including Mercury, Venus, Earth, Mars, Jupiter, and Saturn are simulated. Planet and Sun icons were used to show the planets. Their orbit around the Sun is drawn in the left upper corner. <br />
 The simulation allows also interactive launching of comets like the Halley's comet. After launch you can watch it being deflected by the Sun or getting collided with one of the other objects. Do you get the comets moving around the sun in a stable orbeit like the planets? <br />
 Following features are provided.
 
@@ -10,6 +10,10 @@ Following features are provided.
 2. Zoom in and out
 3. Launch comets
 4. Watch distances of the planets
+
+## Starting the game
+
+python main.py
 
 ## Interactive mode
 
@@ -22,10 +26,6 @@ This simulation serves several interactiv features. Just click on one of the fol
 - _i_ - change displayed view to inner planets only
 - _o_ - change displayed view to all plants
 - _LEFT MOUSE BUTTON_ - launch comets
-
-## Starting the game
-
-python main.py
 
 ## Technical Details
 
